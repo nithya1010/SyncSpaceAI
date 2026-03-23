@@ -20,6 +20,7 @@ app.use('/api/tasks', require('./routes/tasks'))
 app.use('/api/users', require('./routes/users'))
 app.use('/api/ai', require('./routes/ai'))
 app.use('/api/workspaces', require('./routes/workspaceRoutes'))
+app.use('/api/invite',     require('./routes/invite'))
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 
 app.use(errorHandler)

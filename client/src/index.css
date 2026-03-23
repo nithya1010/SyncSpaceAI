@@ -88,6 +88,22 @@
     @apply bg-[#111827] border border-[#1E293B] rounded-xl;
   }
 
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl;
+  }
+
+  .glass-card-hover {
+    @apply glass-card hover:bg-white/8 hover:border-white/15 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer;
+  }
+
+  .topnav-link {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 text-gray-400 hover:text-white;
+  }
+
+  .topnav-link-active {
+    @apply topnav-link bg-white/15 text-white;
+  }
+
   .card-hover {
     @apply card hover:border-[#334155] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer;
   }

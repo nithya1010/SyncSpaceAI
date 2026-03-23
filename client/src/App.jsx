@@ -12,8 +12,11 @@ import Tasks from './pages/Tasks'
 import Focus from './pages/Focus'
 import Analytics from './pages/Analytics'
 import AI from './pages/AI'
+import AIPlanner from './pages/AIPlanner'
 import Profile from './pages/Profile'
 import Settings from './pages/Settings'
+import TeamInvite from './pages/TeamInvite'
+import AcceptInvite from './pages/AcceptInvite'
 
 const App = () => {
   return (
@@ -24,6 +27,7 @@ const App = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/accept-invite" element={<AcceptInvite />} />
 
           {/* Protected dashboard */}
           <Route
@@ -39,6 +43,8 @@ const App = () => {
             <Route path="focus" element={<Focus />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="ai" element={<AI />} />
+            <Route path="planner" element={<AIPlanner />} />
+            <Route path="team" element={<TeamInvite />} />
             <Route path="profile" element={<Profile />} />
             <Route path="settings" element={<Settings />} />
           </Route>

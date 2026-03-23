@@ -141,3 +141,108 @@ exports.analyzeResume = async (req, res) => {
     res.status(500).json({ message: err.message })
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// AI Project Planner Engine
+// ─────────────────────────────────────────────────────────────
+const PROJECT_PLANNER_PROMPT = `You are an AI-powered intelligent collaboration assistant inside a platform called SyncSpace AI.
+Your goal is to help teams plan, organize, and execute projects efficiently with smart role assignment, task distribution, and time-based planning.
+
+FEATURE REQUIREMENTS:
+1. MULTI-PROJECT CONTEXT: Each project is independent. Roles, tasks, and timelines must be scoped to the given project only.
+2. TIME ANALYSIS: Calculate total available time from current date to deadline. Divide into phases: Planning, Development, Testing, Deployment. Adjust based on available time.
+3. ROLE ASSIGNMENT: Assign roles based on Skills (primary) and Preferences (override if specified). Example roles: Frontend Developer, Backend Developer, UI/UX Designer, AI Engineer, Tester, Project Manager.
+4. TASK GENERATION: Break the project into clear modules: UI Design, API Development, Database Design, Authentication, Integration, Testing, Deployment.
+5. TIME ESTIMATION: For each task, estimate duration. Ensure total workload fits within deadline. Parallelize tasks or reduce scope if time is limited.
+6. TASK DISTRIBUTION: Assign tasks to members based on Skills, Preferences, and Workload balance.
+7. SCHEDULING: Assign start and end time (day number) for each task. Maintain logical dependencies.
+8. USER OVERRIDE & FLEXIBILITY: Respect user decisions over AI logic if provided in preferences.
+9. TEAM COLLABORATION VISIBILITY: Output clear ownership of tasks.
+10. PROGRESS TRACKING STRUCTURE: Each task must include status: "todo" | "in-progress" | "done".
+
+OUTPUT FORMAT (STRICT JSON ONLY):
+{
+  "project": "Project Name",
+  "timeline": {
+    "totalDays": 0,
+    "phases": [
+      { "phase": "Planning", "days": 0 },
+      { "phase": "Development", "days": 0 },
+      { "phase": "Testing", "days": 0 },
+      { "phase": "Deployment", "days": 0 }
+    ]
+  },
+  "roles": [
+    { "name": "Member Name", "role": "Assigned Role" }
+  ],
+  "tasks": [
+    {
+      "task": "Task name",
+      "assignedTo": "Member Name",
+      "estimatedTime": "X days or hours",
+      "startDay": 0,
+      "endDay": 0,
+      "status": "todo"
+    }
+  ],
+  "message": "Is this plan okay or would you like to modify roles, tasks, or timeline?"
+}
+
+IMPORTANT RULES: 
+- ALWAYS consider time constraints
+- ALWAYS balance workload
+- ALWAYS return structured JSON only (No markdown wrap, NO code blocks, raw JSON ONLY).
+`
+
+exports.generateProjectPlan = async (req, res) => {
+  try {
+    const { projectName, projectDescription, deadline, currentDate, teamMembers } = req.body
+
+    if (!projectName || !deadline || !teamMembers) {
+      return res.status(400).json({ message: 'Project name, deadline, and team members are required.' })
+    }
+
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) {
+      return res.status(503).json({ message: 'Groq API key not configured. Add GROQ_API_KEY to server/.env' })
+    }
+
+    const inputData = `
+INPUT DETAILS:
+Project Name: ${projectName}
+Project Description: ${projectDescription || 'N/A'}
+Deadline: ${deadline}
+Current Date: ${currentDate || new Date().toISOString().split('T')[0]}
+
+TEAM MEMBERS:
+${JSON.stringify(teamMembers, null, 2)}
+`
+
+    const openai = new OpenAI({
+      apiKey,
+      baseURL: 'https://api.groq.com/openai/v1',
+    })
+
+    const completion = await openai.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: 'You are a structured JSON output engine. Return only raw JSON, no markdown formatting blocks.' },
+        { role: 'user',   content: PROJECT_PLANNER_PROMPT + '\\n' + inputData },
+      ],
+      temperature: 0.2,
+      max_tokens: 3000,
+    })
+
+    const raw = completion.choices[0].message.content.trim()
+    const cleanOutput = raw.replace(/^\`\`\`json/m, '').replace(/^\`\`\`/m, '').replace(/\`\`\`$/m, '').trim()
+    
+    let plan = JSON.parse(cleanOutput)
+    res.json(plan)
+  } catch (err) {
+    console.error('Planner Error:', err)
+    if (err instanceof SyntaxError) {
+      return res.status(500).json({ message: 'AI returned invalid JSON plan. Please try again.' })
+    }
+    res.status(500).json({ message: err.message })
+  }
+}

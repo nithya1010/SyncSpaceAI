@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import {
   LayoutDashboard, CheckSquare, Focus, BarChart2,
   Bot, User, Settings, LogOut, ChevronLeft, ChevronRight,
-  Zap, Trophy
+  Zap, Trophy, Calendar, Users
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -14,7 +14,8 @@ const NAV_SECTIONS = [
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true, kbd: '⌘1' },
       { to: '/dashboard/tasks', label: 'Tasks', icon: CheckSquare, kbd: '⌘2' },
-      { to: '/dashboard/focus', label: 'Focus Mode', icon: Focus, kbd: '⌘3' },
+      { to: '/dashboard/team', label: 'Team', icon: Users, kbd: '⌘3' },
+      { to: '/dashboard/focus', label: 'Focus Mode', icon: Focus, kbd: '⌘4' },
     ],
   },
   {
@@ -22,6 +23,7 @@ const NAV_SECTIONS = [
     items: [
       { to: '/dashboard/analytics', label: 'Analytics', icon: BarChart2, kbd: '⌘4' },
       { to: '/dashboard/ai', label: 'AI Assistant', icon: Bot, kbd: '⌘5' },
+      { to: '/dashboard/planner', label: 'AI Planner', icon: Calendar, kbd: '⌘8' },
     ],
   },
   {
