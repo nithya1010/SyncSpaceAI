@@ -1,6 +1,6 @@
 import { useWorkspace } from "../context/WorkspaceContext";
 import { useState, useEffect } from 'react'
-import axios from "axios";
+import api from "../api/axios";
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -39,28 +39,7 @@ const Dashboard = () => {
   const [analytics, setAnalytics] = useState(null)
   const [aiData, setAiData] = useState(null)
 
-  useEffect(() => {
-  const fetchWorkspaces = async () => {
-    try {
-      const res = await axios.get(
-        "http://localhost:5000/api/workspaces",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (res.data.length > 0) {
-        setActiveWorkspace(res.data[0]);
-      }
-    } catch (error) {
-      console.error("Error fetching workspaces:", error);
-    }
-  };
-
-  fetchWorkspaces();
-}, []);
+  // Workspace fetching moved to WorkspaceContext
 
   useEffect(() => {
     fetchAll()

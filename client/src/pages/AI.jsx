@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Bot, User, Zap, Lightbulb, ListTodo, BarChart2, RefreshCw } from 'lucide-react'
-import { getAIRecommendation } from '../api/ai'
+import { chatWithAI } from '../api/ai'
 import PageHeader from '../components/PageHeader'
 
 const SUGGESTIONS = [
@@ -45,12 +45,8 @@ const AI = () => {
     setLoading(true)
 
     try {
-      const res = await getAIRecommendation()
-      const d = res.data
-      let reply = ''
-      if (d.recommendation) reply += d.recommendation + '\n\n'
-      if (d.tip) reply += '💡 Tip: ' + d.tip
-      if (!reply) reply = 'Your task data has been analyzed. Keep up the great work!'
+      const res = await chatWithAI(q)
+      const reply = res.data.reply || 'I processed your request, but received no response.'
 
       setMessages(prev => [...prev, { id: Date.now() + 1, role: 'bot', text: reply, ts: new Date() }])
     } catch {

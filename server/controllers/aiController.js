@@ -246,3 +246,43 @@ ${JSON.stringify(teamMembers, null, 2)}
     res.status(500).json({ message: err.message })
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// Interactive AI Chat Assistant
+// ─────────────────────────────────────────────────────────────
+exports.chatWithAI = async (req, res) => {
+  try {
+    const { query } = req.body
+    if (!query) return res.status(400).json({ message: 'Query is required.' })
+
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) return res.status(503).json({ message: 'Groq API key not configured.' })
+
+    // Fetch user tasks for context
+    const tasks = await Task.find({ $or: [{ createdBy: req.user._id }, { assignedTo: req.user._id }] })
+    const taskContext = tasks.map(t => `- [${t.status}] ${t.title} (Priority: ${t.priority})`).join('\n')
+
+    const prompt = `You are a helpful AI productivity assistant for SyncSpace AI.
+The user is asking you a question about their tasks, productivity, or collaboration.
+Here is the user's current task list:\n${taskContext || 'No tasks yet.'}
+
+User Question: ${query}
+
+Keep your answer concise, helpful, and formatted simply. Limit to 2-3 paragraphs max. Do not use complex markdown that requires rendering, just plain text with simple bullet points if needed.`
+
+    const openai = new OpenAI({ apiKey, baseURL: 'https://api.groq.com/openai/v1' })
+    const completion = await openai.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: 'You are an AI productivity assistant.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.5,
+      max_tokens: 500,
+    })
+
+    res.json({ reply: completion.choices[0].message.content.trim() })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}

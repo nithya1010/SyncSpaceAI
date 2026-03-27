@@ -4,6 +4,7 @@ import { Plus, LayoutGrid, List, SlidersHorizontal } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import TaskCard from '../components/TaskCard'
 import Modal from '../components/Modal'
+import { useWorkspace } from '../context/WorkspaceContext'
 import { getTasks, createTask, updateTask, deleteTask } from '../api/tasks'
 
 const COLUMNS = ['To Do', 'In Progress', 'Completed']
@@ -19,6 +20,7 @@ const STATUSES = ['All', 'To Do', 'In Progress', 'Completed']
 const DEFAULT_FORM = { title: '', description: '', priority: 'Medium', status: 'To Do', xpReward: '' }
 
 const Tasks = () => {
+  const { activeWorkspace } = useWorkspace()
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState('kanban')
@@ -32,14 +34,22 @@ const Tasks = () => {
   const [dragOver, setDragOver] = useState(null)
   const [draggingId, setDraggingId] = useState(null)
 
-  useEffect(() => { loadTasks() }, [])
+  useEffect(() => {
+    if (activeWorkspace) {
+      loadTasks()
+    }
+  }, [activeWorkspace])
 
   const loadTasks = async () => {
+    setLoading(true)
     try {
-      const res = await getTasks()
+      const res = await getTasks(activeWorkspace._id)
       setTasks(res.data)
-    } catch (e) { console.error(e) }
-    finally { setLoading(false) }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const filtered = tasks.filter(t => {
@@ -69,7 +79,7 @@ const Tasks = () => {
         setTasks(prev => prev.map(t => t._id === editTask._id ? res.data : t))
         if (editTask.status !== 'Completed' && form.status === 'Completed') window.location.reload()
       } else {
-        const res = await createTask(form)
+        const res = await createTask(activeWorkspace._id, form)
         setTasks(prev => [res.data, ...prev])
       }
       setModal(false)

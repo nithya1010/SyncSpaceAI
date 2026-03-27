@@ -44,7 +44,7 @@ const AIPlanner = () => {
         teamMembers: team.filter(m => m.name.trim() !== '')
       };
       
-      const res = await api.post('/planner', payload);
+      const res = await api.post('/ai/planner', payload);
       setPlan(res.data);
       setStep(3);
     } catch (err) {
