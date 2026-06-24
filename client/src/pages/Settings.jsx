@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Sun, Moon, Monitor, Bell, Lock, Trash2, ChevronRight } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
@@ -44,9 +44,21 @@ const THEMES = [
 ]
 
 const Settings = () => {
-  const [theme, setTheme] = useState('dark')
+  const [theme, setTheme] = useState(() => localStorage.getItem('syncspace_theme') || 'dark')
+  const [compact, setCompact] = useState(() => (localStorage.getItem('syncspace_compact') === 'true'))
   const [notifs, setNotifs] = useState({ taskReminders: true, xpUpdates: true, teamActivity: false, weeklyDigest: true })
   const [privacy, setPrivacy] = useState({ showActivity: true, showXP: true })
+
+  // Persist theme and compact sidebar preference
+  useEffect(() => {
+    try { localStorage.setItem('syncspace_theme', theme) } catch (e) {}
+    // rudimentary theme application: add class to <html>
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+
+  useEffect(() => {
+    try { localStorage.setItem('syncspace_compact', compact) } catch (e) {}
+  }, [compact])
 
   return (
     <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">
@@ -73,7 +85,7 @@ const Settings = () => {
           </div>
         </Row>
         <Row icon={Monitor} label="Compact Sidebar" description="Collapse sidebar by default">
-          <Toggle checked={false} onChange={() => {}} />
+          <Toggle checked={compact} onChange={v => setCompact(v)} />
         </Row>
       </Section>
 

@@ -19,8 +19,13 @@ const TeamInvite = () => {
     setSuccess(''); setError('')
     setLoading(true)
     try {
-      await api.post('/invite', form)
-      setSuccess(`Invitation sent to ${form.email}!`)
+      const res = await api.post('/invite', form)
+      // If server returned an acceptLink (SMTP not configured), show it
+      if (res.status === 202 && res.data?.acceptLink) {
+        setSuccess(`Invitation created. Share this link: ${res.data.acceptLink}`)
+      } else {
+        setSuccess(`Invitation sent to ${form.email}!`)
+      }
       setForm(f => ({ ...f, email: '' }))
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send invitation.')

@@ -35,8 +35,12 @@ const NAV_SECTIONS = [
   },
 ]
 
+import { useUI } from '../context/UIContext'
+
 const Sidebar = ({ collapsed, onToggle }) => {
   const { user, logout } = useAuth()
+  const ui = useUI()
+  if (collapsed === undefined) collapsed = ui?.compact || false
   const navigate = useNavigate()
 
   const handleLogout = () => { logout(); navigate('/login') }
@@ -74,7 +78,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
         )}
         {!collapsed && (
           <button
-            onClick={onToggle}
+            onClick={() => { if (onToggle) onToggle(); else ui.setCompact(!collapsed) }}
             className="p-1 rounded-lg hover:bg-[#1F2937] text-gray-600 hover:text-gray-300 transition-all ml-auto"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -86,11 +90,11 @@ const Sidebar = ({ collapsed, onToggle }) => {
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
         {NAV_SECTIONS.map((section) => (
           <div key={section.label}>
-            {!collapsed && (
-              <p className="label-xs px-3 mb-1">{section.label}</p>
+            {collapsed && (
+              <div className="w-6 h-6 rounded-md bg-indigo-600 flex items-center justify-center mx-auto">
+                <Zap className="w-3.5 h-3.5 text-white" />
+              </div>
             )}
-            <div className="space-y-0.5">
-              {section.items.map(({ to, label, icon: Icon, end, kbd }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -181,7 +185,7 @@ const Sidebar = ({ collapsed, onToggle }) => {
 
         {collapsed && (
           <button
-            onClick={onToggle}
+            onClick={() => { if (onToggle) onToggle(); else ui.setCompact(!collapsed) }}
             className="w-full flex items-center justify-center p-2 mt-1 rounded-lg hover:bg-[#1F2937] text-gray-600 hover:text-gray-300 transition-all"
           >
             <ChevronRight className="w-4 h-4" />

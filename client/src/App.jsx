@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { WorkspaceProvider } from './context/WorkspaceContext'
+import { UIProvider } from './context/UIContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './layouts/DashboardLayout'
 
@@ -21,6 +23,8 @@ import AcceptInvite from './pages/AcceptInvite'
 const App = () => {
   return (
     <AuthProvider>
+      <WorkspaceProvider>
+      <UIProvider>
       <BrowserRouter>
         <Routes>
           {/* Public */}
@@ -53,6 +57,8 @@ const App = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </UIProvider>
+      </WorkspaceProvider>
     </AuthProvider>
   )
 }
